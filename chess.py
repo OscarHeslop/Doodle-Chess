@@ -56,34 +56,32 @@ def draw_board():
 
 #1 point to a pawn, 3 points to a knight or bishop, 5 points to a rook, and 9 points to the queen,
 
-class Move():
-    def __init__(self, start_pos, end_pos):
-        self.start_pos = start_pos #self.start the self stores it, the input makes it temporarily stored
-        self.end_pos = end_pos
-
-
-#pseudo illegal 
-
 class Move_check():
-    def __init(self, start_pos, end_pos):
+    def __init__(self, start_pos, end_pos, current_pos):
         self.start_pos = start_pos #self.start the self stores it, the input makes it temporarily stored
         self.end_pos = end_pos
-        # ! CHECK IF ANY OTHER CHESS PIECE IS ON START LOOP THROUGH ALL THE STEPS BETWEEN THAT AND THAT IF THERE IS BLOCK IN MIDDLE CHECK 
-    def diagonal(self):
-        #GRADIENT 
-        y = self.end_pos[1] - self.start_pos[1]
-        x = self.end_pos[0] - self.start_pos[0]
-        #makes sure is diagonal if not equals 1, does not follow rule 
-        if float(y / x ) == float(1):
+        self.current_pos = current_pos
+
+    def straight(self):
+        start = self.start_pos
+        end = self.end_pos
+        #check one variable changed 
+        if (start[0] != end[0]) and (start[1] == end[1]):
             return True
-        else:
-            return False
-    #def straight(self, start, end):
-        # ! check if any pieces in way
-        #clear the image from the start pos
-        #add to the end pos 
-        #update the pos
-        
+        elif (start[0] == end[0]) and (start[1] != end[1]): 
+            return True
+            
+
+
+    def diagonal(self):
+        start = self.start_pos
+        end = self.end_pos
+        #GRADIENT 
+        y = start[1] - end[1]
+        x = start[0] - end[0]
+        #MAKING SURE IS DIAGONAL - GRADIENT 1 
+        if (float(y / x ))**2 == float(1): #check the modulus, POS OR NEG
+            return True 
 
 
 
@@ -91,11 +89,35 @@ from pathlib import Path
 class Pieces():
     #all global vars 
     pieces_list = [] # shared between all the classes
-    def __init__(self, name, file_path):
+    def __init__(self, name, file_path, possible_moves):
         self.file_path = file_path
         self.name = name
         self.row = 0 
         self.col = 0
+        self.possible_moves = possible_moves
+        self.start_index = (0,0)
+        self.end_index = (0,0)# between 1 and 8 
+
+    def move_type(self):
+        for sub in list(self.possible_moves):
+            for i in range(len(sub)): #look at the tuples in each sub
+
+
+        
+                #S, D, L
+                if self.possible_moves == "S":
+                    if Move_check.straight(self):#gives True  / False
+                        self.col, self.row = self.end_index #update the pos 
+                        
+                if self.possible_moves == "D":
+                    if Move_check.diagonal(self):
+                        self.col, self.row = self.end_index #update the pos
+
+    def move(self, new_col, new_row): #x, y
+        self.row = new_row 
+        self.col = new_col #is col
+
+
 
     def add_to_board(self, row, col):
         self.row = row 
@@ -120,8 +142,6 @@ class Pieces():
                 new_height = int(img.get_height() * float(ratio)) #cannot have half a pixel 
 
                 img = pygame.transform.smoothscale(img, (new_width, new_height))#smooth scale diff to scale, makes look cleaner
-
-                # Using blit to copy content from one surface to other
                 screen.blit(img, (x, y))
             else:
                 print("Image folder not found")
@@ -130,17 +150,17 @@ class Pieces():
 #--------------------------------
 #CREATING THE PIECES 
 #--------------------------------
-knight1 = Pieces("knight", "wN.svg")
+knight1 = Pieces("knight", "wN.svg",("L"))
 knight1.add_to_board(2, 3) #each one is a new instance 
 
-knight2 = Pieces("knight", "wN.svg")
+knight2 = Pieces("knight", "wN.svg",("L"))
 knight2.add_to_board(3, 4)
 
  
-queen = Pieces("queen", "wQ.svg")
+queen = Pieces("queen", "wQ.svg",("D","S")) #diagonal, straight
 queen.add_to_board(4, 5)
 
-bishop = Pieces("bishop", "wB.svg")
+bishop = Pieces("bishop", "wB.svg",("D"))
 bishop.add_to_board(5, 6)
 
 #adding to the board
@@ -179,7 +199,8 @@ x = None
 y = None
 
 
-
+counter = 0
+selected_piece = None
 running = True
 while running:
     for event in pygame.event.get():
@@ -203,12 +224,44 @@ while running:
                 y = (clicked_row) * square_size
 
 
-                #PRINT THE CHESS PIECE CLICKED
-                for piece in Pieces.pieces_list:
-                    if (piece.col == (clicked_col)) and (piece.row == (clicked_row)):
-                        print(piece.name)
 
-                print(clicked_col, clicked_row)
+
+
+                
+
+                if selected_piece == None: #if a piece selected 
+                    #search for piece
+                            
+                    #PRINT THE CHESS PIECE CLICKED
+                    for i, piece in enumerate(Pieces.pieces_list):
+                        if (piece.col == (clicked_col)) and (piece.row == (clicked_row)): #a piece is clicked
+                            selected_piece = i
+                            counter += 1 
+
+                    print(clicked_col, clicked_row)
+
+                            
+
+
+                elif selected_piece != None and counter ==1:
+                    #not search for piece
+                    Pieces.pieces_list[selected_piece].move(clicked_col, clicked_row)#holds self, #updates the pos
+                    counter = 0 
+                    selected_piece = None 
+
+
+                    
+
+
+                        
+                        
+
+
+                #detect when a piece is clicked 
+                #count num clicks the one after that run the func 
+
+                #update the display_array 
+
     
                 
 
