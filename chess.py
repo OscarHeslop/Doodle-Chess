@@ -2,6 +2,7 @@
 
 #is 8x8 grid 
 
+#each is given points 
 
 import pygame
 import sys
@@ -51,6 +52,120 @@ def draw_board():
             pygame.draw.rect(screen, square_colour, (x, y, square_size, square_size))
 
 
+
+
+#1 point to a pawn, 3 points to a knight or bishop, 5 points to a rook, and 9 points to the queen,
+
+class Move():
+    def __init__(self, start_pos, end_pos):
+        self.start_pos = start_pos #self.start the self stores it, the input makes it temporarily stored
+        self.end_pos = end_pos
+
+
+#pseudo illegal 
+
+class Move_check():
+    def __init(self, start_pos, end_pos):
+        self.start_pos = start_pos #self.start the self stores it, the input makes it temporarily stored
+        self.end_pos = end_pos
+        # ! CHECK IF ANY OTHER CHESS PIECE IS ON START LOOP THROUGH ALL THE STEPS BETWEEN THAT AND THAT IF THERE IS BLOCK IN MIDDLE CHECK 
+    def diagonal(self):
+        #GRADIENT 
+        y = self.end_pos[1] - self.start_pos[1]
+        x = self.end_pos[0] - self.start_pos[0]
+        #makes sure is diagonal if not equals 1, does not follow rule 
+        if float(y / x ) == float(1):
+            return True
+        else:
+            return False
+    #def straight(self, start, end):
+        # ! check if any pieces in way
+        #clear the image from the start pos
+        #add to the end pos 
+        #update the pos
+        
+
+
+
+from pathlib import Path
+class Pieces():
+    #all global vars 
+    pieces_list = [] # shared between all the classes
+    def __init__(self, name, file_path):
+        self.file_path = file_path
+        self.name = name
+        self.row = 0 
+        self.col = 0
+
+    def add_to_board(self, row, col):
+        self.row = row 
+        self.col = col
+        Pieces.pieces_list.append(self) #x, y
+    def display(self):
+        pieces = Pieces.pieces_list
+
+        for i in range(len(pieces)):
+            row = self.row
+            col = self.col
+        
+            x = float(((col) * square_size)) #should be in the middle
+            y = float(((row) * square_size) )
+
+            path = Path(r"C:\Users/Oscar/Downloads/ALL ML PROJECTS/chess_img") #needs to be raw
+            img = pygame.image.load(str(path / f'{self.file_path}')).convert_alpha() #makes transparent background
+            #RATIO 
+            if img.get_height() != 0 :
+                ratio = square_size / (img.get_height())
+                new_width = int(img.get_width() * float(ratio))
+                new_height = int(img.get_height() * float(ratio)) #cannot have half a pixel 
+
+                img = pygame.transform.smoothscale(img, (new_width, new_height))#smooth scale diff to scale, makes look cleaner
+
+                # Using blit to copy content from one surface to other
+                screen.blit(img, (x, y))
+            else:
+                print("Image folder not found")
+
+
+#--------------------------------
+#CREATING THE PIECES 
+#--------------------------------
+knight1 = Pieces("knight", "wN.svg")
+knight1.add_to_board(2, 3) #each one is a new instance 
+
+knight2 = Pieces("knight", "wN.svg")
+knight2.add_to_board(3, 4)
+
+ 
+queen = Pieces("queen", "wQ.svg")
+queen.add_to_board(4, 5)
+
+bishop = Pieces("bishop", "wB.svg")
+bishop.add_to_board(5, 6)
+
+#adding to the board
+
+
+
+
+#req 
+#focus on the knight 
+#when the knight moves goes to the correct spot
+#when knight creates add to existing pieces and go through all the x, y coordinates 
+
+
+        
+
+#seperates sliding pieces to normal piece 
+#add to list of possible moves 
+
+#looks at all possible moves 
+
+
+#sliding pieces 
+'''' sebastian lague
+https://www.youtube.com/watch?v=U4ogK0MIzqk
+'''
 #--------------------------
 # ! MAIN GAME LOOP
 #--------------------------
@@ -63,38 +178,53 @@ def draw_board():
 x = None
 y = None
 
+
+
 running = True
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-        
-        #ALL INPUTS CHECKED HERE 
+        #-------------------------------
+        # ! ALL INPUTS CHECKED HERE
+        #-------------------------------
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # 1 means Left Click
                 # Get the raw pixel coordinates (e.g., x=450, y=120)
                 mouse_x, mouse_y = event.pos
                 
-                # Convert pixels to chess grid coordinates (0 to 7)
-                clicked_col = int(mouse_x // square_size)
-                clicked_row = int(mouse_y // square_size)
+                # (between 1 and 8)
+                clicked_col = int(mouse_x // square_size) 
+                clicked_row = int(mouse_y // square_size)   
 
 
                 x = (clicked_col) * square_size
                 y = (clicked_row) * square_size
 
 
+                #PRINT THE CHESS PIECE CLICKED
+                for piece in Pieces.pieces_list:
+                    if (piece.col == (clicked_col)) and (piece.row == (clicked_row)):
+                        print(piece.name)
+
+                print(clicked_col, clicked_row)
+    
                 
-                
-                print(f"Pixel Clicked: ({mouse_x}, {mouse_y})")
 
 
 
 
+
+ 
+    #SCREEN DISPLAY 
     draw_board()    
     if (x != None) and (y != None):
         pygame.draw.rect(screen, move_square_colour, (x, y, square_size, square_size))
+
+    #SHOWING PIECES 
+    for piece in Pieces.pieces_list:
+        piece.display()
     
     
 
